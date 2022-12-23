@@ -493,7 +493,6 @@ def get_ids_allowed_to_access_media(obj, medias):
 
 
 def get_list_allowed_to_access_media(obj, medias):
-    """List of accessible media.
-    """
+    """List of accessible media."""
     ids = get_ids_allowed_to_access_media(obj, medias)
     return list(filter(lambda x: x.id in ids, medias))
