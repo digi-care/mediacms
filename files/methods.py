@@ -461,7 +461,7 @@ def is_allowed_to_access_media(obj, media):
     If the media state is not ('private', 'protected'), always returns True.
     """
 
-    if not media.state in ["private", "protected"]:
+    if media.state not in ["private", "protected"]:
         return True
     if not obj:
         return False
