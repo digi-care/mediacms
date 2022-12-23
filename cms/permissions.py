@@ -1,7 +1,11 @@
 from django.conf import settings
 from rest_framework import permissions
 
-from files.methods import is_mediacms_editor, is_mediacms_manager
+from files.methods import (
+    is_allowed_to_access_media,
+    is_mediacms_editor,
+    is_mediacms_manager,
+)
 
 
 class IsAuthorizedToAdd(permissions.BasePermission):
@@ -66,3 +70,21 @@ def user_allowed_to_upload(request):
         if request.user.advancedUser:
             return True
     return False
+
+
+class IsUserAllowedToAccessMedia(permissions.BasePermission):
+    """To be used in cases where request.user is allowed
+    to access ('private', 'protected') media.
+    If the media state is not ('private', 'protected'), always returns True.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        return is_allowed_to_access_media(request, obj)
+
+
+def user_allowed_to_access_media(request, media):
+    """To be used in cases where request.user is allowed
+    to access ('private', 'protected') media.
+    If the media state is not ('private', 'protected'), always returns True.
+    """
+    return is_allowed_to_access_media(request, media)

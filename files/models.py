@@ -44,6 +44,7 @@ MEDIA_ENCODING_STATUS = (
 # this is set by default according to the portal workflow
 MEDIA_STATES = (
     ("private", "Private"),
+    ("protected", "Protected"),
     ("public", "Public"),
     ("unlisted", "Unlisted"),
 )
@@ -121,7 +122,7 @@ class Media(models.Model):
 
     add_date = models.DateTimeField("Date produced", blank=True, null=True, db_index=True)
 
-    allow_download = models.BooleanField(default=True, help_text="Whether option to download media is shown")
+    allow_download = models.BooleanField(default=False, help_text="Whether option to download media is shown")
 
     category = models.ManyToManyField("Category", blank=True, help_text="Media can be part of one or more categories")
 
@@ -156,7 +157,7 @@ class Media(models.Model):
     hls_file = models.CharField(max_length=1000, blank=True, help_text="Path to HLS file for videos")
 
     is_reviewed = models.BooleanField(
-        default=settings.MEDIA_IS_REVIEWED,
+        default=False,
         db_index=True,
         help_text="Whether media is reviewed, so it can appear on public listings",
     )
@@ -234,7 +235,7 @@ class Media(models.Model):
     state = models.CharField(
         max_length=20,
         choices=MEDIA_STATES,
-        default=helpers.get_portal_workflow(),
+        default="private",
         db_index=True,
         help_text="state of Media",
     )
@@ -358,10 +359,12 @@ class Media(models.Model):
             # after media is saved, post_save signal will call media_init function
             # to take care of post save steps
 
+            self.allow_download = settings.MEDIA_ALLOW_DOWNLOAD
+            self.is_reviewed = settings.MEDIA_IS_REVIEWED
             self.state = helpers.get_default_state(user=self.user)
 
         # condition to appear on listings
-        if self.state == "public" and self.encoding_status == "success" and self.is_reviewed is True:
+        if self.state in ["public", "protected"] and self.encoding_status == "success" and self.is_reviewed is True:
             self.listable = True
         else:
             self.listable = False
@@ -930,6 +933,8 @@ class Category(models.Model):
 
     listings_thumbnail = models.CharField(max_length=400, blank=True, null=True, help_text="Thumbnail to show on listings")
 
+    members = models.ManyToManyField("users.User", related_name="accessible_categories", blank=True, help_text="Members of the category have access to the media.")
+
     def __str__(self):
         return self.title
 
@@ -959,7 +964,7 @@ class Category(models.Model):
         if self.thumbnail:
             return helpers.url_from_path(self.thumbnail.path)
 
-        media = Media.objects.filter(category=self, state="public").order_by("-views").first()
+        media = Media.objects.filter(category=self, listable=True, state="public").order_by("-views").first()
         if media:
             return media.thumbnail_url
 
@@ -1014,7 +1019,7 @@ class Tag(models.Model):
     def thumbnail_url(self):
         if self.listings_thumbnail:
             return self.listings_thumbnail
-        media = Media.objects.filter(tags=self, state="public").order_by("-views").first()
+        media = Media.objects.filter(tags=self, listable=True, state="public").order_by("-views").first()
         if media:
             return media.thumbnail_url
 
@@ -1283,7 +1288,7 @@ class Playlist(models.Model):
 
     @property
     def thumbnail_url(self):
-        pm = self.playlistmedia_set.first()
+        pm = self.playlistmedia_set.filter(media__listable=True, media__state="public").first()
         if pm and pm.media.thumbnail:
             return helpers.url_from_path(pm.media.thumbnail.path)
         return None

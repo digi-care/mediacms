@@ -15,7 +15,7 @@ TIME_ZONE = "Europe/London"
 # valid options include 'all', 'email_verified', 'advancedUser'
 CAN_ADD_MEDIA = "all"
 
-# valid choices here are 'public', 'private', 'unlisted
+# valid choices here are 'public', 'protected', 'private', 'unlisted
 PORTAL_WORKFLOW = "public"
 
 # valid values: 'light', 'dark'.
@@ -81,6 +81,8 @@ SHOW_ORIGINAL_MEDIA = True
 # Keep in mind that nginx will serve the file unless there's
 # some authentication taking place. Check nginx file and setup a
 # basic http auth user/password if you want to restrict access
+
+MEDIA_ALLOW_DOWNLOAD = True  # default whether option to download media is shown.
 
 MAX_MEDIA_PER_PLAYLIST = 70
 # bytes, size of uploaded media
@@ -374,12 +376,20 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": error_filename,
         },
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
     },
     "loggers": {
         "django": {
             "handlers": ["file"],
             "level": "ERROR",
             "propagate": True,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "DEBUG",
         },
     },
 }

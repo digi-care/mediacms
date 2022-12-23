@@ -17,6 +17,9 @@ export default class ViewerInfoVideoTitleBanner extends ViewerInfoTitleBanner {
       case 'private':
         stateTooltip = 'The site admins have to make its access public';
         break;
+      case 'protected':
+        stateTooltip = 'The site admins have to make its access public';
+        break;
       case 'unlisted':
         stateTooltip = 'The site admins have to make it appear on listings';
         break;

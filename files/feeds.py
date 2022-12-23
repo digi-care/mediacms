@@ -63,7 +63,7 @@ class IndexRSSFeed(Feed):
     description = "Latest Media RSS feed"
 
     def items(self):
-        media = Media.objects.filter(listable=True).order_by("-add_date")
+        media = Media.objects.filter(listable=True, state="public").order_by("-add_date")
         media = media.prefetch_related("user")
         return media[:20]
 
@@ -109,7 +109,7 @@ class SearchRSSFeed(Feed):
         tag = request.GET.get("t", "")
         query = request.GET.get("q", "")
 
-        media = Media.objects.filter(listable=True)
+        media = Media.objects.filter(listable=True, state="public")
 
         if category:
             media = media.filter(category__title=category)

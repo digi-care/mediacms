@@ -104,6 +104,8 @@ def get_portal_workflow():
 def get_default_state(user=None):
     # possible states given the portal workflow setting
     state = "private"
+    if settings.PORTAL_WORKFLOW == "protected":
+        state = "protected"
     if settings.PORTAL_WORKFLOW == "public":
         state = "public"
     if settings.PORTAL_WORKFLOW == "unlisted":

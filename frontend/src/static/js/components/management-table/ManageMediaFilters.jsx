@@ -9,6 +9,7 @@ const filters = {
   state: [
     { id: 'all', title: 'All' },
     { id: 'public', title: 'Public' },
+    { id: 'protected', title: 'Protected' },
     { id: 'private', title: 'Private' },
     { id: 'unlisted', title: 'Unlisted' },
   ],
