@@ -17,3 +17,7 @@ static/rest_framework/
 static/drf-yasg
 cms/local_settings.py
 deploy/docker/local_settings.py
+
+Bento4-SDK-*.zip
+Bento4-SDK-*/
+*.pyc

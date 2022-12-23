@@ -112,6 +112,9 @@ export default class ViewerInfoTitleBanner extends React.PureComponent {
       case 'private':
         stateTooltip = 'The site admins have to make its access public';
         break;
+      case 'protected':
+        stateTooltip = 'The site admins have to make its access public';
+        break;
       case 'unlisted':
         stateTooltip = 'The site admins have to make it appear on listings';
         break;

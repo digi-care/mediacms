@@ -26,7 +26,7 @@ from rest_framework.views import APIView
 
 from actions.models import USER_MEDIA_ACTIONS, MediaAction
 from cms.custom_pagination import FastPaginationWithoutCount
-from cms.permissions import IsAuthorizedToAdd, IsUserOrEditor, user_allowed_to_upload
+from cms.permissions import IsAuthorizedToAdd, IsUserOrEditor, user_allowed_to_upload, user_allowed_to_access_media
 from users.models import User
 
 from .forms import ContactForm, MediaForm, SubtitleForm
@@ -41,6 +41,8 @@ from .methods import (
     show_recommended_media,
     show_related_media,
     update_user_ratings,
+    get_ids_allowed_to_access_media,
+    get_list_allowed_to_access_media,
 )
 from .models import (
     Category,
@@ -413,6 +415,7 @@ class MediaList(APIView):
         paginator = pagination_class()
 
         if show_param != "recommended":
+            media = media.filter(id__in=get_ids_allowed_to_access_media(request, media))
             media = media.prefetch_related("user")
         page = paginator.paginate_queryset(media, request)
 
@@ -456,7 +459,7 @@ class MediaDetail(APIView):
             # has_object_permission() after has_permission has succeeded
             self.check_object_permissions(self.request, media)
 
-            if media.state == "private" and not (self.request.user == media.user or is_mediacms_editor(self.request.user)):
+            if not user_allowed_to_access_media(self.request, media):
                 if (not password) or (not media.password) or (password != media.password):
                     return Response(
                         {"detail": "media is private"},
@@ -768,7 +771,7 @@ class MediaSearch(APIView):
             ret = {}
             return Response(ret, status=status.HTTP_200_OK)
 
-        media = Media.objects.filter(state="public", is_reviewed=True)
+        media = Media.objects.filter(state__in=["public","protected"], is_reviewed=True)
 
         if query:
             # move this processing to a prepare_query function
@@ -811,6 +814,7 @@ class MediaSearch(APIView):
             if gte:
                 media = media.filter(add_date__gte=gte)
 
+        media = media.filter(id__in=get_ids_allowed_to_access_media(request, media))
         media = media.order_by(f"{ordering}{sort_by}")
 
         if self.request.query_params.get("show", "").strip() == "titles":
@@ -907,6 +911,7 @@ class PlaylistDetail(APIView):
         playlist_media = PlaylistMedia.objects.filter(playlist=playlist).prefetch_related("media__user")
 
         playlist_media = [c.media for c in playlist_media]
+        playlist_media = get_list_allowed_to_access_media(request, playlist_media)
         playlist_media_serializer = MediaSerializer(playlist_media, many=True, context={"request": request})
         ret = serializer.data
         ret["playlist_media"] = playlist_media_serializer.data
@@ -1201,7 +1206,7 @@ class CommentDetail(APIView):
         try:
             media = Media.objects.select_related("user").get(friendly_token=friendly_token)
             self.check_object_permissions(self.request, media)
-            if media.state == "private" and self.request.user != media.user:
+            if not user_allowed_to_access_media(self.request, media):
                 return Response({"detail": "media is private"}, status=status.HTTP_400_BAD_REQUEST)
             return media
         except PermissionDenied:
@@ -1331,7 +1336,13 @@ class CategoryList(APIView):
         },
     )
     def get(self, request, format=None):
-        categories = Category.objects.filter().order_by("title")
+        user = request.user
+        if user.is_anonymous:
+            categories = []
+        elif is_mediacms_editor(user):
+            categories = Category.objects.filter().order_by("title")
+        else:
+            categories = user.accessible_categories.order_by("title")
         serializer = CategorySerializer(categories, many=True, context={"request": request})
         ret = serializer.data
         return Response(ret)

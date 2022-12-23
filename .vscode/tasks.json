@@ -1,0 +1,71 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+		{
+			"label": "django: shell",
+			"type": "shell",
+			"command": "sudo /home/mediacms.io/utils/manage.sh shell",
+			"detail": "python manage.py shell",
+			"problemMatcher": []
+		},
+		{
+			"label": "django: makemigrations",
+			"type": "shell",
+			"command": "sudo /home/mediacms.io/utils/manage.sh makemigrations",
+			"detail": "python manage.py makemigrations",
+			"problemMatcher": []
+		},
+		{
+			"label": "django: showmigrations",
+			"type": "shell",
+			"command": "sudo /home/mediacms.io/utils/manage.sh showmigrations",
+			"detail": "python manage.py showmigrations",
+			"problemMatcher": []
+		},
+		{
+			"label": "django: sqlmigrate [args]",
+			"type": "shell",
+			"command": "sudo /home/mediacms.io/utils/manage.sh sqlmigrate ${input:manageArgs}",
+			"detail": "python manage.py sqlmigrate [args]",
+			"problemMatcher": []
+		},
+		{
+			"label": "django: migrate [args]",
+			"type": "shell",
+			"command": "sudo /home/mediacms.io/utils/manage.sh migrate ${input:manageArgs}",
+			"detail": "python manage.py migrate [args]",
+			"problemMatcher": []
+		},
+		{
+			"label": "django: squashmigrations [args]",
+			"type": "shell",
+			"command": "sudo /home/mediacms.io/utils/manage.sh squashmigrations ${input:manageArgs}",
+			"detail": "python manage.py squashmigrations [args]",
+			"problemMatcher": []
+		},
+		{
+			"label": "mediacms: restart services",
+			"type": "shell",
+			"command": "sudo systemctl restart mediacms celery_long celery_short",
+			"detail": "systemctl restart mediacms celery_long celery_short",
+			"problemMatcher": []
+		},
+		{
+			"label": "vscode: initialize for tasks.json",
+			"type": "shell",
+			"command": "sudo cp -r /home/mediacms.io/mediacms/.vscode/utils/ /home/mediacms.io/ && sudo chmod 744 /home/mediacms.io/utils/*.sh && sudo chmod -R a+wr /home/mediacms.io/mediacms/",
+			"detail": "cp /home/mediacms.io/mediacms/.vscode/utils/*.sh /home/mediacms.io/utils/",
+			"problemMatcher": []
+		},
+	],
+    "inputs": [
+        {
+            "id": "manageArgs",
+            "type": "promptString",
+            "description": "Input args with space delimiter",
+            // "default": "",
+        },
+    ],
+}

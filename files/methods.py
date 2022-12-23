@@ -117,7 +117,7 @@ def get_next_state(user, current_state, next_state):
     Users may themselves perform only allowed transitions
     """
 
-    if next_state not in ["public", "private", "unlisted"]:
+    if next_state not in ["public", "protected", "private", "unlisted"]:
         next_state = settings.PORTAL_WORKFLOW  # get default state
     if is_mediacms_editor(user):
         # allow any transition
@@ -129,6 +129,11 @@ def get_next_state(user, current_state, next_state):
     if settings.PORTAL_WORKFLOW == "unlisted":
         # don't allow to make media public in this case
         if next_state == "public":
+            next_state = current_state
+
+    if settings.PORTAL_WORKFLOW == "protected":
+        # allow to make media protected or private
+        if next_state not in ["protected", "private"]:
             next_state = current_state
 
     return next_state
@@ -219,6 +224,7 @@ def show_recommended_media(request, limit=100):
         media = list(models.Media.objects.filter(friendly_token__in=pmi).filter(basic_query).prefetch_related("user")[:limit])
     else:
         media = list(models.Media.objects.filter(basic_query).order_by("-views", "-likes").prefetch_related("user")[:limit])
+    media = get_list_allowed_to_access_media(request, media)
     random.shuffle(media)
     return media
 
@@ -273,6 +279,7 @@ def show_related_media_content(media, request, limit):
             m = list(itertools.chain(m, q_res))
 
     m = list(set(m[:limit]))  # remove duplicates
+    m = get_list_allowed_to_access_media(request, m)
 
     try:
         m.remove(media)  # remove media from results
@@ -294,6 +301,7 @@ def show_related_media_author(media, request, limit):
     # find a way for indexes with more than 1 field
 
     m = list(set(m[:limit]))  # remove duplicates
+    m = get_list_allowed_to_access_media(request, m)
 
     try:
         m.remove(media)  # remove media from results
@@ -445,3 +453,48 @@ def list_tasks():
     ret["task_ids"] = task_ids
     ret["media_profile_pairs"] = media_profile_pairs
     return ret
+
+
+def is_allowed_to_access_media(obj, media):
+    """Any custom logic for whether user is allowed
+    to access ('private', 'protected') media.
+    If the media state is not ('private', 'protected'), always returns True.
+    """
+    
+    if not media.state in ["private", "protected"]:
+        return True
+    if not obj:
+        return False
+    if hasattr(obj, 'user'):
+        user = obj.user
+    else:
+        user = obj
+    if user.is_anonymous:
+        return False
+    if media.user == user:
+        return True
+    if is_mediacms_editor(user):
+        return True
+    if media.state == "private":
+        return False
+    user_category_set = user.accessible_categories.all()
+    media_category_set = media.category.all()
+    n = (user_category_set & media_category_set).count()
+    return n > 0
+
+
+def get_ids_allowed_to_access_media(obj, medias):
+    """List of accessible media id.
+    """
+    ids = []
+    for media in medias:
+        if is_allowed_to_access_media(obj, media):
+            ids.append(media.id)
+    return ids
+
+
+def get_list_allowed_to_access_media(obj, medias):
+    """List of accessible media.
+    """
+    ids = get_ids_allowed_to_access_media(obj, medias)
+    return list(filter(lambda x: x.id in ids, medias))

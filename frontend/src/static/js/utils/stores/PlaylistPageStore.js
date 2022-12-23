@@ -88,6 +88,8 @@ class PlaylistPageStore extends EventEmitter {
         switch (this.get('visibility')) {
           case 'unlisted':
             return <i className="material-icons">insert_link</i>;
+          case 'protected':
+            return <i className="material-icons">lock_open</i>;
           case 'private':
             return <i className="material-icons">lock</i>;
         }

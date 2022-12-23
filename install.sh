@@ -76,6 +76,16 @@ echo "SSL_FRONTEND_HOST = FRONTEND_HOST.replace('http', 'https')" >> cms/local_s
 echo 'SECRET_KEY='\'"$SECRET_KEY"\' >> cms/local_settings.py
 echo "LOCAL_INSTALL = True" >> cms/local_settings.py
 
+echo "" >> cms/local_settings.py
+echo "#DEBUG = True" >> cms/local_settings.py
+echo "#TIME_ZONE = 'Asia/Tokyo'" >> cms/local_settings.py
+echo "#CELERY_TIMEZONE = TIME_ZONE" >> cms/local_settings.py
+echo "#REGISTER_ALLOWED = False         # whether the register button appears" >> cms/local_settings.py
+echo "#USERS_CAN_SELF_REGISTER = False  # registration won't be open, might also consider to remove links for register" >> cms/local_settings.py
+echo "#MEDIA_ALLOW_DOWNLOAD = False     # default whether option to download media is shown." >> cms/local_settings.py
+echo "#MEDIA_IS_REVIEWED = False        # whether an admin needs to review a media file." >> cms/local_settings.py
+echo "#PORTAL_WORKFLOW = 'protected'    # valid choices here are 'public', 'protected', 'private', 'unlisted'" >> cms/local_settings.py
+
 mkdir logs
 mkdir pids
 python manage.py migrate
