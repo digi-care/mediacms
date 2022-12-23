@@ -26,13 +26,20 @@ from rest_framework.views import APIView
 
 from actions.models import USER_MEDIA_ACTIONS, MediaAction
 from cms.custom_pagination import FastPaginationWithoutCount
-from cms.permissions import IsAuthorizedToAdd, IsUserOrEditor, user_allowed_to_upload, user_allowed_to_access_media
+from cms.permissions import (
+    IsAuthorizedToAdd,
+    IsUserOrEditor,
+    user_allowed_to_access_media,
+    user_allowed_to_upload,
+)
 from users.models import User
 
 from .forms import ContactForm, MediaForm, SubtitleForm
 from .helpers import clean_query, produce_ffmpeg_commands
 from .methods import (
     check_comment_for_mention,
+    get_ids_allowed_to_access_media,
+    get_list_allowed_to_access_media,
     get_user_or_session,
     is_mediacms_editor,
     is_mediacms_manager,
@@ -41,8 +48,6 @@ from .methods import (
     show_recommended_media,
     show_related_media,
     update_user_ratings,
-    get_ids_allowed_to_access_media,
-    get_list_allowed_to_access_media,
 )
 from .models import (
     Category,
@@ -771,7 +776,7 @@ class MediaSearch(APIView):
             ret = {}
             return Response(ret, status=status.HTTP_200_OK)
 
-        media = Media.objects.filter(state__in=["public","protected"], is_reviewed=True)
+        media = Media.objects.filter(state__in=["public", "protected"], is_reviewed=True)
 
         if query:
             # move this processing to a prepare_query function

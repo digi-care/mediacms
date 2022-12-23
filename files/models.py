@@ -1288,7 +1288,7 @@ class Playlist(models.Model):
 
     @property
     def thumbnail_url(self):
-        pm = self.playlistmedia_set.filter(media__listable = True, media__state = "public").first()
+        pm = self.playlistmedia_set.filter(media__listable=True, media__state="public").first()
         if pm and pm.media.thumbnail:
             return helpers.url_from_path(pm.media.thumbnail.path)
         return None

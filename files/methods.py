@@ -460,7 +460,7 @@ def is_allowed_to_access_media(obj, media):
     to access ('private', 'protected') media.
     If the media state is not ('private', 'protected'), always returns True.
     """
-    
+
     if not media.state in ["private", "protected"]:
         return True
     if not obj:
@@ -484,8 +484,7 @@ def is_allowed_to_access_media(obj, media):
 
 
 def get_ids_allowed_to_access_media(obj, medias):
-    """List of accessible media id.
-    """
+    """List of accessible media id."""
     ids = []
     for media in medias:
         if is_allowed_to_access_media(obj, media):

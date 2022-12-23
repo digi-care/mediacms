@@ -30,6 +30,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='media',
             name='state',
-            field=models.CharField(choices=[('private', 'Private'), ('protected', 'Protected'), ('public', 'Public'), ('unlisted', 'Unlisted')], db_index=True, default='private', help_text='state of Media', max_length=20),
+            field=models.CharField(
+                choices=[('private', 'Private'), ('protected', 'Protected'), ('public', 'Public'), ('unlisted', 'Unlisted')],
+                db_index=True,
+                default='private',
+                help_text='state of Media',
+                max_length=20,
+            ),
         ),
     ]
