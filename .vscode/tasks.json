@@ -55,7 +55,7 @@
 		{
 			"label": "vscode: initialize for tasks.json",
 			"type": "shell",
-			"command": "sudo cp -r /home/mediacms.io/mediacms/.vscode/utils/ /home/mediacms.io/ && sudo chmod 744 /home/mediacms.io/utils/*.sh && sudo chmod -R a+wr /home/mediacms.io/mediacms/",
+			"command": "sudo cp -r /home/mediacms.io/mediacms/.vscode/utils/ /home/mediacms.io/ && sudo chmod 744 /home/mediacms.io/utils/*.sh",
 			"detail": "cp /home/mediacms.io/mediacms/.vscode/utils/*.sh /home/mediacms.io/utils/",
 			"problemMatcher": []
 		},
