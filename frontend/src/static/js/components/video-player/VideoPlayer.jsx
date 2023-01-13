@@ -192,7 +192,7 @@ export function VideoPlayer(props) {
       document.addEventListener('visibilitychange', initPlayer);
     }
 
-    player.player.one('loadedmetadata', () => {       
+    player.player.one('canplaythrough', () => {       
       const urlParams = new URLSearchParams(window.location.search);
       const paramT = Number(urlParams.get('t'));
       const timestamp = !isNaN(paramT) ? paramT : 0;

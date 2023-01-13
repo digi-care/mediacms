@@ -27,3 +27,5 @@ Open in browser: [http://localhost:8088](http://localhost:8088)
 Generates the folder "**_frontend/dist_**".
 
 Copy folders and files from "**_frontend/dist/static_**" into "**_static_**".
+
+    cp -rf /home/mediacms.io/mediacms/frontend/dist/static /home/mediacms.io/mediacms/

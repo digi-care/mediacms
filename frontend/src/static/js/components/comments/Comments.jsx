@@ -444,7 +444,7 @@ export default function CommentsList(props) {
       });
     }
 
-    video.one('loadedmetadata', () => {       
+    video.one('canplay', () => {       
       retrievedComments.forEach(comment => {          
         comment.text = setTimestampAnchorsAndMarkers(comment.text, video);
       });
